@@ -1,0 +1,3 @@
+interface web avec cherrypi 
+liste de toutes les cartes dans l'ordre
+pour la pile, faire un random sur la liste
