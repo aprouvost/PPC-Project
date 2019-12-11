@@ -18,23 +18,25 @@ PROCESS BOARD
   
     - Fonction mélanger cartes
     
-      **def function shuffleCards**{
-              shuffle(cards)
-              returns cards
+      **def function shuffleCards** {
+      
+               shuffle(cards)
+               returns cards
           }
         
     - Creation deck ( dico)
     
       **def function deckCreation** {
-         card_colors = ["red", "blue"]
-         card_types = list of integers between 0 et 10
+      
+          card_colors = ["red", "blue"]
+          card_types = list of integers between 0 et 10
          
-        for color in card_colors do :
-          for card_type in card_types do:
-            add to Deck ({'type': card_type, 'color': color})
-            
-        returns Deck
-          
+          for color in card_colors do :
+            for card_type in card_types do:
+              add to Deck ({'type': card_type, 'color': color})
+
+          returns Deck
+
       }
       
     - Creation board ( dico 1 entrée, initial: 1 carte piochée deck)
