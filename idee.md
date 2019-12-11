@@ -11,4 +11,6 @@
 * Board: Processus père. Vision globale sur tout le jeu , " Game manager"
 * Main des joueurs : Processus fils. Vision uniquement de leur jeu + accès au deck et au tas pour poser
 
+* Besoin réactivité et temps d'attente aléatoire pour réponse du joueur: utilisation de multiprocess
+
 *Il faut mettre en place un siganl pour indiqué la mise a jour du Board a l'autre joueur
