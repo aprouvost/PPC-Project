@@ -4,18 +4,18 @@
 
 PROCESS BOARD 
 
-  Communication:
-    
+  * Communication:
     - Pipe avec fils
     
 
-  Objet:
+  * Objet:
   
     - Deck en shared memory
     - Board en shared memory
     - Message queue
 
-
+  * Fonction:
+  
     - Fonction mélanger cartes
     
       **def function shuffleCards**{
