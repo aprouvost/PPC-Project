@@ -5,11 +5,13 @@
     - Pipe avec le pere
     
   Objets:
+  
     - Main (dico, initialement 5 cartes piocher)
     - Boark (sharedMemory)
     - Timer
   
-  Fonctions:
+  Fonctions :
+  
     - Piocher carte : signal envoyé au pere
     - Timeout -> Pop-up jouer ou piocher lock Pioche et Board + envoyer un siganl au pere
     - freezTimer : signal du pere quand timeout de l'autre joueur
