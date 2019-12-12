@@ -90,9 +90,12 @@ PROCESS BOARD
 
         IF ( received signal from player saying he wants to play a new_card AND the new_card is correct) do:
             Game = new_card
-            player.hand.remove( new_card)
-            send player_two(Game_state)
-            getGameSettings()
+            IF checkIfValid(card) do:
+              player.hand.remove( new_card)
+              send player_two(Game_state)
+              getGameSettings()
+            ELSE do:
+             player.pickCard()
         END IF
 
     }
@@ -121,4 +124,26 @@ PROCESS BOARD
     }
     
     
-  
+    - Main : main program 
+    
+    **main** {
+      
+      deckCreation()
+      shuffleCards()
+      GameCreation()
+      fils1.start()
+      fils2.start()
+      
+      FOR i IN range(4) do:
+       fils1.pickCard()
+       fils2.pickCard()
+      END FOR
+      
+      WHILE TRUE do:
+       playerPlayingCard()
+       timeOutPlayer()
+       playerWins()
+       playerLost()
+       getGameSettings()
+      END IF
+    }
