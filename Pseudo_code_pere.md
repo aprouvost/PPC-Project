@@ -48,7 +48,6 @@ PROCESS BOARD
       
       }
 
-
     - Creation fils
 
     - Fonction gagner ( plus de carte dans main)
@@ -62,7 +61,6 @@ PROCESS BOARD
         returns wins
     }
 
-
     - Fonction perdu ( plus de cartes dans deck)
 
     **def playerLost** {
@@ -73,9 +71,6 @@ PROCESS BOARD
         End IF
         returns lost
     }
-
-
-
 
     - Fonction afficher état du jeu
 
@@ -123,10 +118,10 @@ PROCESS BOARD
     
     }
     
-    
     - Main : main program 
     
     **main** {
+      
       
       deckCreation()
       shuffleCards()
@@ -146,4 +141,5 @@ PROCESS BOARD
        playerLost()
        getGameSettings()
       END IF
-    }
+      
+   }
