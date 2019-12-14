@@ -137,9 +137,11 @@ PROCESS BOARD
       WHILE TRUE do:
        playerPlayingCard()
        timeOutPlayer()
-       playerWins()
-       playerLost()
-       getGameSettings()
-      END IF
+       IF (playerWins() or playerLost()) do:
+        getGameSettings()
+        WHILE (2 player don't click OK buton) do: nothing END WHILE
+        SIGKILL to fils1 and fils2
+       END IF
+      END WHILE
       
    }
