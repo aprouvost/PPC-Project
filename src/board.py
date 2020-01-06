@@ -1,5 +1,6 @@
 import random
 import threading
+import Carte
 from multiprocessing import Process, Array
 from multiprocessing.connection import Pipe
 
@@ -18,7 +19,8 @@ class Board:
         for nb in range(1, numberOfReapeat):
             for color in card_color:
                 for types in card_types:
-                    self.deck.append((color, types))
+                    card= new Carte (color, types)
+                    self.deck.append(card)
 
         return self.deck
 
@@ -36,8 +38,9 @@ if __name__ == "__main":
     lock = threading.Lock()
     mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
     global MEMORY_SIZE
-    MEMORY_SIZE = 100
-    deck_shared_memory = Array('i', MEMORY_SIZE)
+    MEMORY_SIZE_DECK = 20
+    MEMORY_SIZE=100
+    deck_shared_memory = Array('i', MEMORY_SIZE_DECK)
     game_shared_memory = Array('i', MEMORY_SIZE)
 
     valid_player_nb = False
@@ -65,7 +68,7 @@ if __name__ == "__main":
         #     for i in range(4)
         #         p.pickCard()
 
-        while Board.playerWins() or Board.playerLost():
+        while Board.playerWins() or Board.playerLost():  #Board.playerWins à définir
             Board.playerPlayingCard()
             Board.timeOutPlayer()
 
