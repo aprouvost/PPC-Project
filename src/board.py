@@ -31,6 +31,10 @@ class Board:
     def playerLost(self):
         return not self.deck
 
+    def getGameSettings(self):
+        print( "Game state : the deck has ", len(deck), "cards", "\n number of cards in player one's hand : ",    "\n number of cards in player two's hand : ",      )  # A compléter
+
+
 
 if __name__ == "__main":
 
