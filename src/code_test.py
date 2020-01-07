@@ -1,4 +1,5 @@
 from board import Board
+from Carte import Carte
 
 b = Board()
 
@@ -10,3 +11,7 @@ l = []
 
 print((not(l)))
 print((not(b.deckCreation(2))))
+
+
+c = Carte(5,"red")
+print(c)

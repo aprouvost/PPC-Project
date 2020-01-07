@@ -1,6 +1,6 @@
 import random
 import threading
-import Carte
+from Carte import Carte
 from multiprocessing import Process, Array
 from multiprocessing.connection import Pipe
 
@@ -19,7 +19,7 @@ class Board:
         for nb in range(1, numberOfReapeat):
             for color in card_color:
                 for types in card_types:
-                    card= new Carte (color, types)
+                    card = Carte(color, types)
                     self.deck.append(card)
 
         return self.deck
