@@ -51,6 +51,10 @@ class Player:
         else:
             return False
 
+
+    #Function to receive msg from Board
+    def get_mesg_from_board(self, ):
+
     # Function used by the player to put a card on the Game
     def playingCard(self, game):
 
