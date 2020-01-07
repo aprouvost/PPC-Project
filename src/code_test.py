@@ -1,3 +1,4 @@
+from termcolor import colored
 from board import Board
 from Carte import Carte
 
@@ -14,4 +15,13 @@ print((not(b.deckCreation(2))))
 
 
 c = Carte(5,"red")
+c1 = Carte(5,"blue")
 print(c)
+print(c1)
+
+l.append(1)
+l.append(2)
+
+print(l)
+
+print(colored("hello world", "green"))
