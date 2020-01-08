@@ -15,9 +15,12 @@ game = []  # shared memory
 class Player:
     """Object used to represent the player """
 
-    def __init__(self, hand):
-        self.hand = hand
+    def __init__(self, pipe, game_sm, deck_sm):
+        self.hand = []
         self.temps_max = 10
+        self.pipe = pipe
+        self.game = game_sm
+        self.deck = deck_sm
 
     def __str__(self):
         return self.hand
@@ -51,9 +54,25 @@ class Player:
         else:
             return False
 
+    def hand_empty(self):
+        if len(self.hand) == 0:
+            return True
+        else:
+            return False
+
 
     #Function to receive msg from Board
-    def get_mesg_from_board(self, ):
+    def get_mesg_from_board(self, message, deck):
+
+        value = message.decode()
+        if message.split(":")[1] == "someone playing":
+            print(" WARING DECK AND GAME LOCKED, player ", message.split(":")[0], " is playing")
+        elif message.split(":")[1] == "game update":
+            print(" WARING , game was updated ")
+            self.get_Game_State(deck)
+        elif message.split(":")[1] == "someone won":
+            print(" WARING player ", message.split(":")[0], "won")
+
 
     # Function used by the player to put a card on the Game
     def playingCard(self, game):
