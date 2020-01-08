@@ -6,11 +6,6 @@ from Carte import Carte
 from multiprocessing import Process, Array
 from multiprocessing.connection import Pipe
 import sysv_ipc
-import socket
-
-TCP_IP = "127.0.0.1"
-TCP_PORT = "666"
-BUFFER_SIZE = 1024
 
 
 class Board:
@@ -49,7 +44,7 @@ class Board:
         self.game = self.deck.pop(0)
         return self.game
 
-    def send_message_to_players(self, msg):
+    def send_message_to_players(self, msg):  #Redefinir avec sysv_ipc
         for addr, port in fils_addr_list:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((addr, port))
@@ -79,13 +74,6 @@ if __name__ == "__main":
     deck_shared_memory = Array('i', MEMORY_SIZE_DECK)
     game_shared_memory = Array('i', MEMORY_SIZE)
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((TCP_IP, TCP_PORT))
-    s.listen(1)
-    conn, addr = s.accept()
-    data = ""
-    print("Connection from", addr)
-
     valid_player_nb = False
     player_nb = input("combien de joueurs ?")
     while not valid_player_nb:
@@ -113,13 +101,8 @@ if __name__ == "__main":
         #     for i in range(4)
         #         p.pickCard()
 
-        while Board.playerWin(data) or Board.playerLost():  # Board.playerWins à définir
-            data = conn.recv(BUFFER_SIZE)
-            if not data:
-                continue
-            else:
-                pass  # fonctions avec la communication des fils
-            Board.playerPlayingCard(data, fils_addr_list)
+        while Board.playerWin(data) or Board.playerLost()
+            Board.get_signal_from_process(data, fils_addr_list)
 
         Board.getGameSettings()
         while data.split(":")[1] == "end ok":
