@@ -23,13 +23,6 @@ if __name__ == "__main":
     deck_shared_memory = Array('i', MEMORY_SIZE_DECK)
     game_shared_memory = Array('i', MEMORY_SIZE)
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((TCP_IP, TCP_PORT))
-    s.listen(1)
-    conn, addr = s.accept()
-    data = ""
-    print("Connection from", addr)
-
     valid_player_nb = False
     player_nb = input("combien de joueurs ?")
     while not valid_player_nb:

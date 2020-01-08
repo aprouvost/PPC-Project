@@ -41,18 +41,18 @@ class Board:
         self.game = self.deck.pop(0)
         return self.game
 
-    def send_message_to_players(self, msg):  #Redefinir avec sysv_ipc
+    def sendMessageToPlayers(self, msg):  #Redefinir avec sysv_ipc
         for addr, port in fils_addr_list:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((addr, port))
             s.send(bytes(msg))
 
-    def get_signal_from_process(self, sig, fils_addr_list):
+    def getSignalFromProcess(self, sig, fils_addr_list):
         if sig.split(":")[1] == "starts playing":
             self.send_message_to_players("{} playing".format(sig.split(":")[0]))
         elif sig.split(":")[1] == "ended playing":
             self.send_message_to_players("update game")
 
     #Function used when press bar is hit to know which process is playing
-    def get_num_process(self):
+    def getNumProcess(self):
         num = int(input( " Quel joueur a tapé la barre espace ? ( entrez le numéro du process ) "))
