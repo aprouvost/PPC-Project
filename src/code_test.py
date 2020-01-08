@@ -1,6 +1,11 @@
+from auto_install_package import autoInstall
+
+autoInstall()
+
 from termcolor import colored
 from board import Board
 from Carte import Carte
+
 
 b = Board()
 

@@ -1,11 +1,9 @@
+#!/usr/bin/env python
+
 import time
 from Board import Board
 import random
-import threading
 from Carte import Carte
-from multiprocessing import Process, Array
-from multiprocessing.connection import Pipe
-
 import sysv_ipc
 
 deck = []  # shared memory

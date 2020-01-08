@@ -1,4 +1,7 @@
+#!/usr/bin/env python
+
 from termcolor import colored
+
 
 class Carte:
     """Object used to represent the cards present in the Deck initially, and in the player's hand """

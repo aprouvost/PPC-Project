@@ -1,3 +1,6 @@
+from auto_install_package import autoInstall
+autoInstall()
+
 from board import Board
 from Carte import Carte
 from Player import Player
