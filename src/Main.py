@@ -20,6 +20,7 @@ if __name__ == "__main":
     global MEMORY_SIZE
     MEMORY_SIZE_DECK = 20
     MEMORY_SIZE = 100
+    BUFFER_SIZE = 100
     deck_shared_memory = Array('i', MEMORY_SIZE_DECK)
     game_shared_memory = Array('i', MEMORY_SIZE)
 
@@ -50,24 +51,24 @@ if __name__ == "__main":
     for i in range(4):
         p.pickCard()
 
-        while Board.playerWin(data) or Board.playerLost():  # Board.playerWins à définir
-            data = conn.recv(BUFFER_SIZE)
-            if not data:
-                continue
-            else:
-                pass  # fonctions avec la communication des fils
-            Board.playerPlayingCard(data, fils_addr_list)
+    while Board.playerWin() or Board.playerLost():
+        data = conn.recv(BUFFER_SIZE)
+        if not data:
+            continue
+        else:
+            pass  # fonctions avec la communication des fils
+        Board.playerPlayingCard(data, fils_addr_list)
 
-        Board.getGameSettings()
-        while data.split(":")[1] == "end ok":
-            pass
+    Board.getGameSettings()
+    while data.split(":")[1] == "end ok":
+        pass
 
-        child_conn.close()
-        parent_conn.close()
-        mq.remove()
+    child_conn.close()
+    parent_conn.close()
+    mq.remove()
 
-        for p in process_fils_list:
-            p.terminate()
+    for p in process_fils_list:
+        p.terminate()
 
-        for p in process_fils_list:
-            p.join()
+    for p in process_fils_list:
+        p.join()

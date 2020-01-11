@@ -56,6 +56,9 @@ class Player:
         else:
             return False
 
+
+    def sendMessageToBoard(self):  # A définir
+
     # Function to receive msg from Board
     def getMesgFromBoard(self, message, deck):       #Je pense pas que ca soit necessaire de mettre deck en args pck on l'a dans notre contexte
 

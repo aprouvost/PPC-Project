@@ -41,7 +41,18 @@ class Board:
         self.game = self.deck.pop(0)
         return self.game
 
-    def sendMessageToPlayers(self, msg):  #Redefinir avec sysv_ipc
+    def playerWin(self, data, process_fils_list):
+        won= False
+        for player in process_fils_list:
+            if len(player.handEmpty()):
+                won= True
+        return won
+
+
+    def getMessageFromPlayer(self): # A définir
+
+
+    def sendMessageToPlayers(self, msg, fils_addr_list):  #Redefinir avec sysv_ipc
         for addr, port in fils_addr_list:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((addr, port))
