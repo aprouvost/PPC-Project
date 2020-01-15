@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import time
-from Board import Board
+from board import Board
 import random
 from Carte import Carte
 import sysv_ipc
@@ -58,6 +58,7 @@ class Player:
 
 
     def sendMessageToBoard(self):  # A définir
+        pass
 
     # Function to receive msg from Board
     def getMesgFromBoard(self, message, deck):       #Je pense pas que ca soit necessaire de mettre deck en args pck on l'a dans notre contexte

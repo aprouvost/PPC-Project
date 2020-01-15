@@ -12,7 +12,7 @@ from multiprocessing.connection import Pipe
 import sysv_ipc
 import socket
 
-if __name__ == "__main":
+if __name__ == "__main__":
 
     key = 666
     lock = threading.Lock()
@@ -24,6 +24,8 @@ if __name__ == "__main":
     deck_shared_memory = Array('i', MEMORY_SIZE_DECK)
     game_shared_memory = Array('i', MEMORY_SIZE)
 
+    b = Board()
+
     valid_player_nb = False
     player_nb = input("combien de joueurs ?")
     while not valid_player_nb:
@@ -32,11 +34,11 @@ if __name__ == "__main":
         except ValueError:
             player_nb = input("Il faut saisir un nombre")
 
-    Board.deckCreation(int(player_nb) // 2)
-    Board.shuffleCards()
+    b.deckCreation(int(player_nb) // 2)
+    b.shuffleCards()
 
     parent_conn, child_conn = Pipe()
-    Board.GameCreation()
+    b.gameCreation()
     process_fils_list = []
 
     # Faire un waiting pour attendre que tous les joueurs soient connecté
@@ -51,15 +53,10 @@ if __name__ == "__main":
     for i in range(4):
         p.pickCard()
 
-    while Board.playerWin() or Board.playerLost():
-        data = conn.recv(BUFFER_SIZE)
-        if not data:
-            continue
-        else:
-            pass  # fonctions avec la communication des fils
-        Board.playerPlayingCard(data, fils_addr_list)
+    while b.playerWin() or b.playerLost():
+        b.playerPlayingCard(data, fils_addr_list)
 
-    Board.getGameSettings()
+    b.getGameSettings()
     while data.split(":")[1] == "end ok":
         pass
 

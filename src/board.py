@@ -50,6 +50,7 @@ class Board:
 
 
     def getMessageFromPlayer(self): # A définir
+        pass
 
 
     def sendMessageToPlayers(self, msg, fils_addr_list):  #Redefinir avec sysv_ipc
