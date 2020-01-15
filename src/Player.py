@@ -57,24 +57,22 @@ class Player:
             return False
 
 
-    def sendMessageToBoard(self):  # A définir
-        pass
+    def sendMessageToBoard(self, msg, mq):
+        mq.send(msg.encode())
 
     # Function to receive msg from Board
-    def getMesgFromBoard(self, message, deck):       #Je pense pas que ca soit necessaire de mettre deck en args pck on l'a dans notre contexte
+    def getMesgFromBoard(self, message):
 
-        value = message.decode()
         if message.split(":")[1] == "someone playing":
             print(" WARING DECK AND GAME LOCKED, player ", message.split(":")[0], " is playing")
         elif message.split(":")[1] == "game update":
             print(" WARING , game was updated ")
-            self.get_Game_State(deck)
+            self.get_Game_State(self.deck)
         elif message.split(":")[1] == "someone won":
             print(" WARING player ", message.split(":")[0], "won")
 
     # Function used by the player to put a card on the Game
-    def playingCard(self, game):        #Je pense pas que ca soit necessaire de mettre game en args pck on l'a dans notre contexte
-
+    def playingCard(self):
         played = False
         seconds = time.time()  # lance timer
         # signal envoyé au père pour dire commence
@@ -88,11 +86,11 @@ class Player:
             num_picked = int(input(" Quelle position dans la liste de cartes souhaitez vous piocher ?"))
             while num_picked > len(self.hand):
                 num_picked = int(input(" Veuillez choisir un rang valide ! "))
-            if self.valid_card(self.hand[num_picked], game):
+            if self.valid_card(self.hand[num_picked], self.game):
                 card_picked = self.hand[num_picked]
-                game.insert(0, card_picked)
+                self.game.insert(0, card_picked)
                 print(" Carte valide et ajoutée")
-            if not self.valid_card(self.hand[num_picked], game):
+            if not self.valid_card(self.hand[num_picked], self.game):
                 print(" Carte invalide. Vous avez du piocher")
                 self.pick_card(self.deck)
 

@@ -41,30 +41,22 @@ class Board:
         self.game = self.deck.pop(0)
         return self.game
 
-    def playerWin(self, data, process_fils_list):
-        won= False
+    def playerWin(self, process_fils_list):
+        won = False
         for player in process_fils_list:
             if len(player.handEmpty()):
-                won= True
+                won = True
         return won
 
+    def sendMessageToPlayers(self, msg, mq):
+        mq.send(msg.encode())
 
-    def getMessageFromPlayer(self): # A définir
-        pass
-
-
-    def sendMessageToPlayers(self, msg, fils_addr_list):  #Redefinir avec sysv_ipc
-        for addr, port in fils_addr_list:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((addr, port))
-            s.send(bytes(msg))
-
-    def getSignalFromProcess(self, sig, fils_addr_list):
+    def getSignalFromPlayers(self, sig, mq):
         if sig.split(":")[1] == "starts playing":
-            self.send_message_to_players("{} playing".format(sig.split(":")[0]))
+            self.sendMessageToPlayers("{} playing".format(sig.split(":")[0]), mq)
         elif sig.split(":")[1] == "ended playing":
-            self.send_message_to_players("update game")
+            self.sendMessageToPlayers("update game", mq)
 
-    #Function used when press bar is hit to know which process is playing
+    # Function used when press bar is hit to know which process is playing
     def getNumProcess(self):
-        num = int(input( " Quel joueur a tapé la barre espace ? ( entrez le numéro du process ) "))
+        num = int(input(" Quel joueur a tapé la barre espace ? ( entrez le numéro du process ) "))

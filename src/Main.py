@@ -6,11 +6,9 @@ from Carte import Carte
 from Player import Player
 import random
 import threading
-from Carte import Carte
 from multiprocessing import Process, Array
 from multiprocessing.connection import Pipe
 import sysv_ipc
-import socket
 
 if __name__ == "__main__":
 
