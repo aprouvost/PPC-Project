@@ -2,7 +2,6 @@ import time
 
 from auto_install_package import autoInstall
 
-
 autoInstall()
 
 from termcolor import colored
@@ -18,30 +17,29 @@ import sysv_ipc
 
 # joueurs
 
-def joueur(mqBP, mqPB, game_shared_memory, deck_shared_memory, lock):
+def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
     print(colored("Player Start", "red"))
-    player = Player(game_shared_memory, deck_shared_memory, mqBP, mqPB, lock)
+    player = Player(game_shared_memory, deck_shared_memory, mq, mqType, lock)
     while True:
         player.getMesgFromBoard()
 
 
 # Board
 
-def board(mqBP, mqPB, deck_shared_memory, game_shared_memory, lock):
+def board(mq, mqType, deck_shared_memory, game_shared_memory, lock):
     print(colored("Board Start", "red"))
-    board = Board(game_shared_memory, deck_shared_memory, mqBP, mqPB, lock)
+    board = Board(game_shared_memory, deck_shared_memory, mq, mqType, lock)
     while True:  # fait un kill sur process si un gagne
         board.getMessageFromPlayer()
 
 
 if __name__ == "__main__":
 
-    keyPB = 666
-    keyBP = 667
+    key = 666
 
     lock = threading.Lock()
-    mqPB = sysv_ipc.MessageQueue(keyPB, sysv_ipc.IPC_CREAT)
-    mqBP = sysv_ipc.MessageQueue(keyBP, sysv_ipc.IPC_CREAT)
+    mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
+    # mqBP = sysv_ipc.MessageQueue(keyBP, sysv_ipc.IPC_CREAT)
 
     BUFFER_SIZE = 100
     deck_shared_memory = Manager().list()
@@ -49,9 +47,10 @@ if __name__ == "__main__":
 
     lock = Lock()
 
-    process_pere = Process(target=board, args=(mqBP, mqPB, game_shared_memory, deck_shared_memory, lock))
+    mqTypeBoard = 1
+    process_pere = Process(target=board, args=(mq, mqTypeBoard, game_shared_memory, deck_shared_memory, lock))
     process_pere.start()
-    mqPB.send("creation_jeu".encode())
+    mq.send("creation_jeu".encode(), type=mqTypeBoard)
     print(deck_shared_memory)
 
     player_nb = int(input("combien de joueurs ?"))
@@ -62,22 +61,20 @@ if __name__ == "__main__":
     process = []
     for n in range(int(player_nb)):
         process.append(
-            Process(target=joueur, args=(mqBP, mqPB, deck_shared_memory, game_shared_memory, lock)))
+            Process(target=joueur, args=(mq, 1 + n + mqTypeBoard, deck_shared_memory, game_shared_memory, lock)))
 
     for p in process:
-        print(colored(p, "cyan"))
         p.start()
 
-
     for p in process:
-        print(" CREATION MAIN ----------------------")
-        mqBP.send("creation_main".encode())
+        sendTo = 1 + process.index(p) + mqTypeBoard
+        print(" CREATION MAIN ----------------------", sendTo)
+        mq.send("creation_main".encode(), type=sendTo)
 
     for p in process:
         p.join()
 
-    mqBP.remove()
-    mqPB.remove()
+    mq.remove()
 
     process_pere.terminate()
 

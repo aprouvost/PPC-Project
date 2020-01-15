@@ -11,14 +11,15 @@ from termcolor import colored
 class Player:
     """Object used to represent the player """
 
-    def __init__(self, game_sm, deck_sm, mqBP, mqPB, lock):
+    def __init__(self, game_sm, deck_sm, mq, mqType, lock):
         self.hand = []
         self.temps_max = 10
         self.game = game_sm
         self.deck = deck_sm
-        self.mqBP = mqBP
-        self.mqPB = mqPB
+        self.mq = mq
+        self.mqType = mqType
         self.lock = lock
+        self.mqTypeBoard = 1
 
     def __str__(self):
         return self.hand
@@ -34,7 +35,8 @@ class Player:
             print(" L'état du jeu est maintenant le suivant :", "\n")
             print(" Votre main : ")
             self.printHand()
-            print(" La dernière carte en jeu est : ", print(self.game[0]), " La pioche contient ", len(self.deck), "cartes")
+            print(" La dernière carte en jeu est : ", print(self.game[0]), " La pioche contient ", len(self.deck),
+                  "cartes")
 
     # Function which allows the player to pick a card
     def pickCard(self):
@@ -43,12 +45,13 @@ class Player:
             self.hand.append(new_card)
 
     # Function checking if the card played is valid or not
-    def validCard(self, card):  # Je pense pas que ca soit necessaire de mettre game en args pck on l'a dans notre contexte
+    def validCard(self,
+                  card):  # Je pense pas que ca soit necessaire de mettre game en args pck on l'a dans notre contexte
         with self.lock:
             return (card.num == self.game[0].num and
-                card.col == self.game[0].col) or \
-               (card.num == self.game[0].num - 1) or \
-               (card.num == self.game[0].num + 1)
+                    card.col == self.game[0].col) or \
+                   (card.num == self.game[0].num - 1) or \
+                   (card.num == self.game[0].num + 1)
 
     def handEmpty(self):
         return len(self.hand) == 0
@@ -59,11 +62,12 @@ class Player:
         print(colored(self.hand, "blue"))
 
     def sendMessageToBoard(self, msg):
-        self.mqPB.send(msg.encode())
+        self.mq.send(msg.encode(), type=self.mqTypeBoard)
 
     # Function to receive msg from Board
     def getMesgFromBoard(self):
-        value = self.mqBP.receive()[0].decode()
+        value = self.mq.receive(type=self.mqType)[0].decode()
+        print(colored("{}".format(self.mqType), "green"))
 
         if value == "playing":
             print(" WARING DECK AND GAME LOCKED someone is playing")

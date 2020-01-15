@@ -8,11 +8,11 @@ from termcolor import colored
 
 class Board:
 
-    def __init__(self, game_sm, deck_sm, mqBP, mqPB, lock):
+    def __init__(self, game_sm, deck_sm, mq, mqType, lock):
         self.deck = deck_sm
         self.game = game_sm
-        self.mqBP = mqBP
-        self.mqPB = mqPB
+        self.mq = mq
+        self.mqType = mqType
         self.lock = lock
 
     def deckCreation(self, numberOfReapeat):
@@ -31,10 +31,8 @@ class Board:
         pass
 
     def shuffleCards(self):
-        print("Sheffling")
         with self.lock:
             random.shuffle(self.deck)
-            print("END Shuffling")
 
     def playerLost(self):
         with self.lock:
@@ -50,23 +48,21 @@ class Board:
 
     def gameCreation(self):
         with self.lock:
-            print(colored("--> {}".format(self.deck), "green"))
             self.game.append(self.deck.pop(0))
-            print(colored("--> {}".format(self.game), "green"))
 
     def sendMessageToPlayers(self, msg):
-        self.mqPB.send(msg.encode())
+        self.mq.send(msg.encode())
 
     def getMessageFromPlayer(self):
-        value = self.mqPB.receive()[0].decode()
+        value = self.mq.receive(type=self.mqType)[0].decode()
         print("VALUE RECEIVED   ", value)
 
         if value == "playing":
-            self.send_message_to_players("playing", self.mqBP)
+            self.send_message_to_players("playing", self.mq)
         if value == "ended_playing":
-            self.send_message_to_players("game_update", self.mqBP)
+            self.send_message_to_players("game_update", self.mq)
         if value == "someone_won":
-            self.send_message_to_players("someone_won", self.mqBP)
+            self.send_message_to_players("someone_won", self.mq)
         if value == "creation_jeu":
             self.deckCreation(2)
             print(" CREATION DECK ---------------")
