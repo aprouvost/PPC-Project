@@ -1,5 +1,3 @@
-import time
-
 from auto_install_package import autoInstall
 
 autoInstall()
@@ -13,6 +11,11 @@ import threading
 from multiprocessing import Process, Manager, Lock
 from multiprocessing.connection import Pipe
 import sysv_ipc
+import time
+import sys
+import socket
+import signal
+from io import TextIOWrapper, BytesIO
 
 
 # joueurs
@@ -20,8 +23,38 @@ import sysv_ipc
 def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
     print(colored("Player Start", "red"))
     player = Player(game_shared_memory, deck_shared_memory, mq, mqType, lock)
+    player.getMesgFromBoard()
+
+    TCP_IP = "127.0.0.1"
+    TCP_PORT = 666 + mqType
+    TCP_BUFFER = 20
+    old_stdout = sys.stdout
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((TCP_IP, TCP_PORT))
+    s.listen(1)
+    print(colored("Waiting TCP conn : {}".format(mqType), "green"))
+    conn, addr = s.accept()
+    print(colored("Connection address: {}".format(addr), "green"))
+
     while True:
-        player.getMesgFromBoard()
+        print(colored("Waiting for instruction", "green"))
+        # player.getMesgFromBoard()
+        data = conn.recv(TCP_BUFFER)
+        print(colored(data, "yellow"))
+
+        if not data:
+            break
+
+        if data.decode() == "1":
+            print(colored("1 selected", "yellow"))
+            sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
+            player.printHand()
+
+            sys.stdout.seek(0)
+            reponse = sys.stdout.read()
+            conn.send(str(reponse).encode())
+            sys.stdout.close()
+            sys.stdout = old_stdout
 
 
 # Board
@@ -29,6 +62,7 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
 def board(mq, mqType, deck_shared_memory, game_shared_memory, lock):
     print(colored("Board Start", "red"))
     board = Board(game_shared_memory, deck_shared_memory, mq, mqType, lock)
+
     while True:  # fait un kill sur process si un gagne
         board.getMessageFromPlayer()
 

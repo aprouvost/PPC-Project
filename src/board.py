@@ -21,7 +21,7 @@ class Board:
         for nb in range(1, numberOfReapeat):
             for color in card_color:
                 for types in card_types:
-                    card = Carte(color, types)
+                    card = Carte(types, color)
                     with self.lock:
                         self.deck.append(card)
 

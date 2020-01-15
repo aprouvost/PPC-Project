@@ -6,6 +6,7 @@ import random
 from Carte import Carte
 import sysv_ipc
 from termcolor import colored
+import sys
 
 
 class Player:
@@ -25,14 +26,15 @@ class Player:
         return self.hand
 
     def printHand(self):
-        for i in range(len(self.hand) - 1):
-            print(self.hand[i], " , ")
-        print("\n")
+        hand = ""
+        for i in range(len(self.hand)):
+            hand += str(self.hand[i]) + " ' "
+        print(hand)
 
     # Function which prints the game state for the player
     def getGameState(self):
         with self.lock:
-            print(" L'état du jeu est maintenant le suivant :", "\n")
+            print(" L'état du jeu est maintenant le suivant :\n")
             print(" Votre main : ")
             self.printHand()
             print(" La dernière carte en jeu est : ", print(self.game[0]), " La pioche contient ", len(self.deck),
@@ -61,13 +63,13 @@ class Player:
             self.pickCard()
         print(colored(self.hand, "blue"))
 
+
     def sendMessageToBoard(self, msg):
         self.mq.send(msg.encode(), type=self.mqTypeBoard)
 
     # Function to receive msg from Board
     def getMesgFromBoard(self):
         value = self.mq.receive(type=self.mqType)[0].decode()
-        print(colored("{}".format(self.mqType), "green"))
 
         if value == "playing":
             print(" WARING DECK AND GAME LOCKED someone is playing")
