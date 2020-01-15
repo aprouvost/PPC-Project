@@ -17,7 +17,7 @@ class Board:
 
     def deckCreation(self, numberOfReapeat):
         card_color = ["red", "blue"]
-        card_types = range(0, 9)
+        card_types = range(0, 10)
         for nb in range(1, numberOfReapeat):
             for color in card_color:
                 for types in card_types:
