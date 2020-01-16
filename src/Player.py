@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import os
 import time
 from board import Board
 import random
@@ -41,17 +41,16 @@ class Player:
 
     # Function which allows the player to pick a card
     def pickCard(self):
-        with self.lock:
-            new_card = self.deck.pop(0)
-            self.hand.append(new_card)
+        # with self.lock:
+        new_card = self.deck.pop(0)
+        self.hand.append(new_card)
 
     # Function checking if the card played is valid or not
     def validCard(self, card):
-        with self.lock:
-            return (card.num == self.game[0].num and
-                    card.col == self.game[0].col) or \
-                   (card.num == self.game[0].num - 1) or \
-                   (card.num == self.game[0].num + 1)
+        # with self.lock:
+        return (card.num == self.game[0].num - 1 and card.col == self.game[0].col) or \
+               (card.num == self.game[0].num + 1 and card.col == self.game[0].col) or \
+               (card.num == self.game[0].num)
 
     def handEmpty(self):
         return len(self.hand) == 0
@@ -60,7 +59,6 @@ class Player:
         for i in range(5):
             self.pickCard()
         print(colored(self.hand, "blue"))
-
 
     def sendMessageToBoard(self, msg):
         self.mq.send(msg.encode(), type=self.mqTypeBoard)
@@ -90,6 +88,9 @@ class Player:
 
         if value == "creation_main":
             self.creationMain()
+        if value == "everyone_looses":
+            print("You loose")
+            os.fork()
 
     # Function used by the player to put a card on the Game
     def playingCard(self, card):

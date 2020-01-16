@@ -30,17 +30,24 @@
 # print(l)
 #
 # print(colored("hello world", "green"))
+#
+# from Player import Player
+# from multiprocessing import Manager, Lock
+# import sysv_ipc
+#
+# key = 666
+# deck_sm = Manager().list()
+# game_sm = Manager().list()
+# lock = Lock()
+# mqType = 1
+# mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
+#
+# joueur = Player(game_sm, deck_sm, mq, mqType, lock)
+# joueur.playingCard()
 
-from Player import Player
-from multiprocessing import Manager, Lock
-import sysv_ipc
-
-key = 666
-deck_sm = Manager().list()
-game_sm = Manager().list()
-lock = Lock()
-mqType = 1
-mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
-
-joueur = Player(game_sm, deck_sm, mq, mqType, lock)
-joueur.playingCard()
+import time
+a= time.time()
+print(a)
+time.sleep(2)
+b = time.time()
+print(int(b-a))

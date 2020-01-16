@@ -51,6 +51,8 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
     restore_stdout()
 
     while True:
+        if player.handEmpty():
+            player.sendMessageToBoard("someone_won")
         print(colored("Waiting for instruction", "green"))
         # player.getMesgFromBoard()
         data = conn.recv(TCP_BUFFER)
@@ -67,31 +69,48 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
             sendToClient()
             restore_stdout()
 
+        if data.decode() == "+":
+            print(colored("{} check game statu".format(mqType), "yellow"))
+            sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
+            player.getGameState()
+            sendToClient()
+            restore_stdout()
+
         if data.decode() == "/":
+            print(colored("{} Joue".format(mqType), "yellow"))
+            player.sendMessageToBoard("playing")
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
             played = False
             seconds = time.time()  # lance timer
             # signal envoyé au père pour dire commence
+            actual_time = time.time()
 
-            while time.time() - seconds < 10 and played == False:  # timer à 10 seconds
-                # Recupère infos sur jeu
-                # Lock sur Deck et Game
+            print(" Vous avez 10 secondes pour jouer. Votre jeu est le suivant : \n"
+                  " Quelle position dans la liste de cartes souhaitez vous piocher ?")
+            sendToClient()
+            while not played:  # timer à 10 seconds
 
-                    print(" Vous avez 10 secondes pour jouer. Votre jeu est le suivant : \n"
-                          " Quelle position dans la liste de cartes souhaitez vous piocher ?")
-                    sendToClient()
+                with player.lock:
+
+                    actual_time = time.time()
+                    print(actual_time)
+                    # Recupère infos sur jeu
+                    # Lock sur Deck et Game
+
                     num_picked = int(conn.recv(TCP_BUFFER).decode())
                     while num_picked > len(player.hand):
+                        print("Saisie incorecte")
                         num_picked = int(conn.recv(TCP_BUFFER).decode())
                     if player.validCard(player.hand[num_picked]):
                         card_picked = player.hand[num_picked]
                         player.game.insert(0, card_picked)
+                        player.hand.remove(card_picked)
                         print(" Carte valide et ajoutée")
-                    if not player.validCard(player.hand[num_picked]):
+                        played = True
+                    else:
                         print(" Carte invalide. Vous avez du piocher")
                         player.pickCard()
-
-                    played = True
+                        played = True
 
             if played:
                 print(" Votre jeu est maintenant le suivant ")
@@ -105,16 +124,19 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
             print(player.printHand())
             sendToClient()
             restore_stdout()
+            player.sendMessageToBoard("ended_playing")
 
 
 # Board
 
-def board(mq, mqType, deck_shared_memory, game_shared_memory, lock):
+def board(mq, mqType, deck_shared_memory, game_shared_memory, lock, listOfPlayer):
     print(colored("Board Start", "red"))
     board = Board(game_shared_memory, deck_shared_memory, mq, mqType, lock)
 
     while True:  # fait un kill sur process si un gagne
-        board.getMessageFromPlayer()
+        board.getMessageFromPlayer(listOfPlayer)
+        if board.playerLost():
+            board.sendMessageToPlayers("everyone_looses", listOfPlayer)
 
 
 if __name__ == "__main__":
@@ -132,12 +154,18 @@ if __name__ == "__main__":
     lock = Lock()
 
     mqTypeBoard = 1
-    process_pere = Process(target=board, args=(mq, mqTypeBoard, game_shared_memory, deck_shared_memory, lock))
+    # player_nb = 2
+
+    process_pere = Process(target=board, args=(mq, mqTypeBoard, game_shared_memory, deck_shared_memory, lock, [i+1 for i in range(2)]))
     process_pere.start()
     mq.send("creation_jeu".encode(), type=mqTypeBoard)
     print(deck_shared_memory)
 
-    player_nb = int(input("combien de joueurs ?"))
+    player_nb = 2
+
+    # player_nb = int(input("combien de joueurs ?"))
+
+
 
     # Faire un waiting pour attendre que tous les joueurs soient connecté
 
