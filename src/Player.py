@@ -89,6 +89,7 @@ class Player:
         if value == "creation_main":
             self.creationMain()
         if value == "everyone_looses":
+            print(colored("ENDING", "red"))
             print("You loose")
             os.fork()
 

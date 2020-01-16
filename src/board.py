@@ -58,23 +58,19 @@ class Board:
             self.mq.send(msg.encode(), type=i)
 
     def getMessageFromPlayer(self, mqPlayer):
-        value = self.mq.receive(type=self.mqType)[0].decode()
-
-        print(colored(mqPlayer, "yellow"))
+        print(colored(str(self.mqType), "yellow"))
+        value = self.mq.receive(type=1)[0].decode()
         print(colored(value, "yellow"))
 
+        if value == "playing":
+            self.sendMessageToPlayers("playing", mqPlayer)
+        if value == "ended_playing":
+            self.sendMessageToPlayers("game_update", mqPlayer)
+        if value == "someone_won":
+            self.sendMessageToPlayers("someone_won", mqPlayer)
         if value == "creation_jeu":
             self.deckCreation(2)
             print(" CREATION DECK ---------------")
             self.shuffleCards()
             self.gameCreation()
             print(colored(self.game[0], "yellow"))
-        if value == "playing":
-            for i in mqPlayer:
-                self.sendMessageToPlayers("playing", i)
-        if value == "ended_playing":
-            for i in mqPlayer:
-                self.sendMessageToPlayers("game_update", i)
-        if value == "someone_won":
-            for i in mqPlayer:
-                self.sendMessageToPlayers("someone_won", i)

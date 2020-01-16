@@ -145,7 +145,6 @@ if __name__ == "__main__":
 
     lock = threading.Lock()
     mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
-    # mqBP = sysv_ipc.MessageQueue(keyBP, sysv_ipc.IPC_CREAT)
 
     BUFFER_SIZE = 100
     deck_shared_memory = Manager().list()
@@ -154,16 +153,19 @@ if __name__ == "__main__":
     lock = Lock()
 
     mqTypeBoard = 1
-    # player_nb = 2
+    player_nb = int(input("combien de joueurs ?"))
 
-    process_pere = Process(target=board, args=(mq, mqTypeBoard, game_shared_memory, deck_shared_memory, lock, [i+1 for i in range(2)]))
+    process_pere = Process(target=board, args=(mq, mqTypeBoard, game_shared_memory, deck_shared_memory, lock, [i+1 for i in range(player_nb)]))
     process_pere.start()
-    mq.send("creation_jeu".encode(), type=mqTypeBoard)
+
+    time.sleep(5)
+    print("Signal to create game", mqTypeBoard)
+    mq.send("creation_jeu".encode(), type=1)
     print(deck_shared_memory)
 
-    player_nb = 2
-
-    # player_nb = int(input("combien de joueurs ?"))
+    print(colored("before", "cyan"))
+    time.sleep(1)
+    print(colored("After", "cyan"))
 
 
 
