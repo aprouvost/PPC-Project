@@ -12,10 +12,9 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((TCP_IP, TCP_PORT))
 
 while True:
-    # s.send("1".encode())
-
-    data = input("Que voulez vous faire ?")
-    s.send(data.encode())
 
     dataRCV = s.recv(TCP_BUFFER)
     print(dataRCV.decode())
+
+    data = input("Que voulez vous faire ?")
+    s.send(data.encode())

@@ -28,16 +28,15 @@ class Player:
     def printHand(self):
         hand = ""
         for i in range(len(self.hand)):
-            hand += str(self.hand[i]) + " ' "
-        print(hand)
+            hand += str(self.hand[i]) + " | "
+        return hand
 
     # Function which prints the game state for the player
     def getGameState(self):
         with self.lock:
             print(" L'état du jeu est maintenant le suivant :\n")
-            print(" Votre main : ")
-            self.printHand()
-            print(" La dernière carte en jeu est : ", print(self.game[0]), " La pioche contient ", len(self.deck),
+            print(" Votre main : {} \n".format(self.printHand()))
+            print(" La dernière carte en jeu est : ", self.game[0], " La pioche contient ", len(self.deck),
                   "cartes")
 
     # Function which allows the player to pick a card
@@ -47,8 +46,7 @@ class Player:
             self.hand.append(new_card)
 
     # Function checking if the card played is valid or not
-    def validCard(self,
-                  card):  # Je pense pas que ca soit necessaire de mettre game en args pck on l'a dans notre contexte
+    def validCard(self, card):
         with self.lock:
             return (card.num == self.game[0].num and
                     card.col == self.game[0].col) or \
@@ -94,10 +92,12 @@ class Player:
             self.creationMain()
 
     # Function used by the player to put a card on the Game
-    def playingCard(self):
+    def playingCard(self, card):
         played = False
         seconds = time.time()  # lance timer
         # signal envoyé au père pour dire commence
+
+        print("Playing...")
 
         while time.time() - seconds < 10 and played == False:  # timer à 10 seconds
             # Recupère infos sur jeu
@@ -110,11 +110,11 @@ class Player:
                 num_picked = int(input(" Quelle position dans la liste de cartes souhaitez vous piocher ?"))
                 while num_picked > len(self.hand):
                     num_picked = int(input(" Veuillez choisir un rang valide ! "))
-                if self.valid_card(self.hand[num_picked], self.game):
+                if self.valid_card(self.hand[num_picked]):
                     card_picked = self.hand[num_picked]
                     self.game.insert(0, card_picked)
                     print(" Carte valide et ajoutée")
-                if not self.valid_card(self.hand[num_picked], self.game):
+                if not self.valid_card(self.hand[num_picked]):
                     print(" Carte invalide. Vous avez du piocher")
                     self.pick_card(self.deck)
 

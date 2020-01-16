@@ -68,3 +68,4 @@ class Board:
             print(" CREATION DECK ---------------")
             self.shuffleCards()
             self.gameCreation()
+            print(colored(self.game[0], "yellow"))

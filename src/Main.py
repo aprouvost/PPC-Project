@@ -36,6 +36,20 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
     conn, addr = s.accept()
     print(colored("Connection address: {}".format(addr), "green"))
 
+    def sendToClient():
+        sys.stdout.seek(0)
+        reponse = sys.stdout.read()
+        conn.send(str(reponse).encode())
+
+    def restore_stdout():
+        sys.stdout.close()
+        sys.stdout = old_stdout
+
+    sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
+    player.getGameState()
+    sendToClient()
+    restore_stdout()
+
     while True:
         print(colored("Waiting for instruction", "green"))
         # player.getMesgFromBoard()
@@ -45,16 +59,52 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
         if not data:
             break
 
-        if data.decode() == "1":
-            print(colored("1 selected", "yellow"))
+        if data.decode() == "*":
+            print(colored("{} Pioche".format(mqType), "yellow"))
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
-            player.printHand()
+            player.pickCard()
+            player.getGameState()
+            sendToClient()
+            restore_stdout()
 
-            sys.stdout.seek(0)
-            reponse = sys.stdout.read()
-            conn.send(str(reponse).encode())
-            sys.stdout.close()
-            sys.stdout = old_stdout
+        if data.decode() == "/":
+            sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
+            played = False
+            seconds = time.time()  # lance timer
+            # signal envoyé au père pour dire commence
+
+            while time.time() - seconds < 10 and played == False:  # timer à 10 seconds
+                # Recupère infos sur jeu
+                # Lock sur Deck et Game
+
+                    print(" Vous avez 10 secondes pour jouer. Votre jeu est le suivant : \n"
+                          " Quelle position dans la liste de cartes souhaitez vous piocher ?")
+                    sendToClient()
+                    num_picked = int(conn.recv(TCP_BUFFER).decode())
+                    while num_picked > len(player.hand):
+                        num_picked = int(conn.recv(TCP_BUFFER).decode())
+                    if player.validCard(player.hand[num_picked]):
+                        card_picked = player.hand[num_picked]
+                        player.game.insert(0, card_picked)
+                        print(" Carte valide et ajoutée")
+                    if not player.validCard(player.hand[num_picked]):
+                        print(" Carte invalide. Vous avez du piocher")
+                        player.pickCard()
+
+                    played = True
+
+            if played:
+                print(" Votre jeu est maintenant le suivant ")
+
+            if not played:
+                print(
+                    "Time's out ! Vous auriez du être plus rapide. Vous avez du piocher. Votre jeu est maintenant le "
+                    "suivant : ")
+                player.pickCard()
+
+            print(player.printHand())
+            sendToClient()
+            restore_stdout()
 
 
 # Board
