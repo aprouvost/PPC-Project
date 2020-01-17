@@ -49,11 +49,12 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
     restore_stdout()
 
     while True:
+
+        print(colored("Checking for mq", "green"))
+        player.getMesgFromBoard()
+
         if player.handEmpty():
             player.sendMessageToBoard("someone_won")
-
-        # print(colored("Checking for mq", "green"))
-        # player.getMesgFromBoard()
 
         print(colored("Waiting for instruction", "green"))
         data = conn.recv(TCP_BUFFER)
@@ -133,6 +134,9 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
 def board(mq, mqType, deck_shared_memory, game_shared_memory, lock, listOfPlayer):
     print(colored("Board Start", "red"))
     board = Board(game_shared_memory, deck_shared_memory, mq, mqType, lock)
+
+    board.getMessageFromPlayer(listOfPlayer)
+    time.sleep(1)
 
     while True:  # fait un kill sur process si un gagne
         board.getMessageFromPlayer(listOfPlayer)

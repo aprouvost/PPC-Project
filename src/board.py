@@ -57,18 +57,24 @@ class Board:
             self.mq.send(msg.encode(), type=i)
 
     def getMessageFromPlayer(self, mqPlayer):
-        value = self.mq.receive(type=1)[0].decode()
-        print(colored(value, "cyan"))
+        if self.mq.current_messages != 0:     # donne le nombre de message dans la MQ
+            value = self.mq.receive(type=0)
+            if value[1] == self.mqType:
+                decodeValue = value[0].decode()
+                print(colored(value[0], "cyan"))
 
-        if value == "playing":
-            self.sendMessageToPlayers("playing", mqPlayer)
-        if value == "ended_playing":
-            self.sendMessageToPlayers("game_update", mqPlayer)
-        if value == "someone_won":
-            self.sendMessageToPlayers("someone_won", mqPlayer)
-        if value == "creation_jeu":
-            self.deckCreation(2)
-            print(" CREATION DECK ---------------")
-            self.shuffleCards()
-            self.gameCreation()
-            print(colored(self.game[0], "yellow"))
+                if decodeValue == "playing":
+                    self.sendMessageToPlayers("playing", mqPlayer)
+                if decodeValue == "ended_playing":
+                    self.sendMessageToPlayers("game_update", mqPlayer)
+                if decodeValue == "someone_won":
+                    self.sendMessageToPlayers("someone_won", mqPlayer)
+                if decodeValue == "creation_jeu":
+                    self.deckCreation(2)
+                    print(" CREATION DECK ---------------")
+                    self.shuffleCards()
+                    self.gameCreation()
+                    print(colored(self.game[0], "yellow"))
+
+            else:
+                self.mq.send(value[0], type=value[1])

@@ -62,34 +62,39 @@ class Player:
     # Function to receive msg from Board
     def getMesgFromBoard(self):
 
-        # self.mq.current_messages()  # donne le nombre de message dans la MQ
+        if self.mq.current_messages != 0:# donne le nombre de message dans la MQ
+            value = self.mq.receive(type=0)
+            if value[1] == self.mqType:
+                decodeValue = value[0].decode()
         # Quand on recoit le msg, il est mit dans un tuple (msg, type) faire une fonction qui recupere les msg et
         # verifie que le msg soit bien pour nous. Pour recuperer n'importe quel msg il faut mettre le type a 0
         # A faire pour le board aussi
 
-        value = self.mq.receive(type=self.mqType)[0]
-        print(colored("{} {}".format(self.mqType, value), "green"))
 
-        if value == "playing":
-            print(" WARING DECK AND GAME LOCKED someone is playing")
+                print(colored("{} {}".format(self.mqType, value[0]), "green"))
 
-        if value == "game_update":
-            print(" WARING , game was updated ")
-            self.get_Game_State()
+                if decodeValue == "playing":
+                    print(" WARING DECK AND GAME LOCKED someone is playing")
 
-        if value == "someone_won":
-            print(" WARING a player won")
+                if decodeValue == "game_update":
+                    print(" WARING , game was updated ")
+                    self.get_Game_State()
 
-        if value == "play_card":  # toche spéciale pour jouer
-            with self.lock:
-                self.playingCard(self.game)
+                if decodeValue == "someone_won":
+                    print(" WARING a player won")
 
-        if value == "creation_main":
-            self.creationMain()
-        if value == "everyone_looses":
-            print(colored("ENDING", "red"))
-            print("You loose")
-            os.fork()
+                if decodeValue == "play_card":  # toche spéciale pour jouer
+                    with self.lock:
+                        self.playingCard(self.game)
+
+                if decodeValue == "creation_main":
+                    self.creationMain()
+                if decodeValue == "everyone_looses":
+                    print(colored("ENDING", "red"))
+                    print("You loose")
+                    os.fork()
+            else:
+                self.mq.send(value[0], type=value[1])
 
     # Function used by the player to put a card on the Game
     def playingCard(self, card):
