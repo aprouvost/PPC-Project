@@ -2,7 +2,6 @@
 
 import random
 from Carte import Carte
-import sysv_ipc
 from termcolor import colored
 
 
@@ -58,9 +57,8 @@ class Board:
             self.mq.send(msg.encode(), type=i)
 
     def getMessageFromPlayer(self, mqPlayer):
-        print(colored(str(self.mqType), "yellow"))
         value = self.mq.receive(type=1)[0].decode()
-        print(colored(value, "yellow"))
+        print(colored(value, "cyan"))
 
         if value == "playing":
             self.sendMessageToPlayers("playing", mqPlayer)

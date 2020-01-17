@@ -1,5 +1,4 @@
 import socket
-import sys
 from termcolor import colored
 
 nbPlayer = int(input("Quel est votre numero de Player ?"))
@@ -16,5 +15,6 @@ while True:
     dataRCV = s.recv(TCP_BUFFER)
     print(dataRCV.decode())
 
-    data = input("Que voulez vous faire ?")
+    data = input(colored("Que voulez vous faire ?      "
+                 "'*' -> piocher | '+' -> Game status | '/' -> play a card", "cyan", attrs=["bold"]))
     s.send(data.encode())

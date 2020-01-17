@@ -1,20 +1,18 @@
+#!/usr/bin/env python
+
 from auto_install_package import autoInstall
 
 autoInstall()
 
 from termcolor import colored
 from board import Board
-from Carte import Carte
 from Player import Player
-import random
 import threading
 from multiprocessing import Process, Manager, Lock
-from multiprocessing.connection import Pipe
 import sysv_ipc
 import time
 import sys
 import socket
-import signal
 from io import TextIOWrapper, BytesIO
 
 
@@ -53,8 +51,11 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
     while True:
         if player.handEmpty():
             player.sendMessageToBoard("someone_won")
-        print(colored("Waiting for instruction", "green"))
+
+        # print(colored("Checking for mq", "green"))
         # player.getMesgFromBoard()
+
+        print(colored("Waiting for instruction", "green"))
         data = conn.recv(TCP_BUFFER)
         print(colored(data, "yellow"))
 
@@ -70,7 +71,7 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
             restore_stdout()
 
         if data.decode() == "+":
-            print(colored("{} check game statu".format(mqType), "yellow"))
+            print(colored("{} check game status".format(mqType), "yellow"))
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
             player.getGameState()
             sendToClient()
@@ -78,7 +79,7 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
 
         if data.decode() == "/":
             print(colored("{} Joue".format(mqType), "yellow"))
-            player.sendMessageToBoard("playing")
+            # player.sendMessageToBoard("playing")  # Il faut regarder pk le msg est recu/envoyer beaucoup trop de fois
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
             played = False
             seconds = time.time()  # lance timer
@@ -155,17 +156,12 @@ if __name__ == "__main__":
     mqTypeBoard = 1
     player_nb = int(input("combien de joueurs ?"))
 
-    process_pere = Process(target=board, args=(mq, mqTypeBoard, game_shared_memory, deck_shared_memory, lock, [i+1 for i in range(player_nb)]))
+    process_pere = Process(target=board, args=(mq, mqTypeBoard, game_shared_memory, deck_shared_memory, lock, [i+2 for i in range(player_nb)]))
     process_pere.start()
 
-    time.sleep(5)
-    print("Signal to create game", mqTypeBoard)
     mq.send("creation_jeu".encode(), type=1)
     print(deck_shared_memory)
-
-    print(colored("before", "cyan"))
     time.sleep(1)
-    print(colored("After", "cyan"))
 
 
 

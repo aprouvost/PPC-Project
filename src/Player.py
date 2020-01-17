@@ -1,12 +1,8 @@
 #!/usr/bin/env python
+
 import os
 import time
-from board import Board
-import random
-from Carte import Carte
-import sysv_ipc
 from termcolor import colored
-import sys
 
 
 class Player:
@@ -65,22 +61,24 @@ class Player:
 
     # Function to receive msg from Board
     def getMesgFromBoard(self):
-        value = self.mq.receive(type=self.mqType)[0].decode()
+
+        # self.mq.current_messages()  # donne le nombre de message dans la MQ
+        # Quand on recoit le msg, il est mit dans un tuple (msg, type) faire une fonction qui recupere les msg et
+        # verifie que le msg soit bien pour nous. Pour recuperer n'importe quel msg il faut mettre le type a 0
+        # A faire pour le board aussi
+
+        value = self.mq.receive(type=self.mqType)[0]
+        print(colored("{} {}".format(self.mqType, value), "green"))
 
         if value == "playing":
             print(" WARING DECK AND GAME LOCKED someone is playing")
 
         if value == "game_update":
-            with self.lock:
-                print(" WARING , game was updated ")
-                self.get_Game_State(self.deck)
+            print(" WARING , game was updated ")
+            self.get_Game_State()
 
         if value == "someone_won":
             print(" WARING a player won")
-
-        if value == "pick_card":  # touche speciale pour piocher
-            with self.lock:
-                self.pickCard(self.deck)
 
         if value == "play_card":  # toche spéciale pour jouer
             with self.lock:
