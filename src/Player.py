@@ -62,14 +62,14 @@ class Player:
     # Function to receive msg from Board
     def getMesgFromBoard(self):
 
-        if self.mq.current_messages != 0:# donne le nombre de message dans la MQ
+        if self.mq.current_messages != 0:  # donne le nombre de message dans la MQ
+            time.sleep(1)
             value = self.mq.receive(type=0)
             if value[1] == self.mqType:
                 decodeValue = value[0].decode()
-        # Quand on recoit le msg, il est mit dans un tuple (msg, type) faire une fonction qui recupere les msg et
-        # verifie que le msg soit bien pour nous. Pour recuperer n'importe quel msg il faut mettre le type a 0
-        # A faire pour le board aussi
-
+                # Quand on recoit le msg, il est mit dans un tuple (msg, type) faire une fonction qui recupere les
+                # msg et verifie que le msg soit bien pour nous. Pour recuperer n'importe quel msg il faut mettre le
+                # type a 0 A faire pour le board aussi
 
                 print(colored("{} {}".format(self.mqType, value[0]), "green"))
 
@@ -78,7 +78,7 @@ class Player:
 
                 if decodeValue == "game_update":
                     print(" WARING , game was updated ")
-                    self.get_Game_State()
+                    self.getGameState()
 
                 if decodeValue == "someone_won":
                     print(" WARING a player won")
@@ -93,8 +93,12 @@ class Player:
                     print(colored("ENDING", "red"))
                     print("You loose")
                     os.fork()
+                else:
+                    print(" WARNING : UNKNOWN VALUE RECEIVED BY PLAYER. RECEIVED :")
+                    print(decodeValue)
             else:
                 self.mq.send(value[0], type=value[1])
+                print(" Message pas pour moi, renvoyé dans la message queue. Message : ", value)
 
     # Function used by the player to put a card on the Game
     def playingCard(self, card):
@@ -115,13 +119,13 @@ class Player:
                 num_picked = int(input(" Quelle position dans la liste de cartes souhaitez vous piocher ?"))
                 while num_picked > len(self.hand):
                     num_picked = int(input(" Veuillez choisir un rang valide ! "))
-                if self.valid_card(self.hand[num_picked]):
+                if self.validCard(self.hand[num_picked]):
                     card_picked = self.hand[num_picked]
                     self.game.insert(0, card_picked)
                     print(" Carte valide et ajoutée")
-                if not self.valid_card(self.hand[num_picked]):
+                if not self.validCard(self.hand[num_picked]):
                     print(" Carte invalide. Vous avez du piocher")
-                    self.pick_card(self.deck)
+                    self.pickCard()
 
                 played = True
 
@@ -132,7 +136,7 @@ class Player:
             print(
                 "Time's out ! Vous auriez du être plus rapide. Vous avez du piocher. Votre jeu est maintenant le "
                 "suivant : ")
-            self.pick_card(self.deck)
+            self.pickCard()
 
         self.printHand()
         # Signal envoyé au père pour dire fini

@@ -4,7 +4,7 @@ from termcolor import colored
 nbPlayer = int(input("Quel est votre numero de Player ?"))
 
 TCP_IP = "127.0.0.1"
-TCP_PORT = 666 + nbPlayer
+TCP_PORT = 667 + nbPlayer
 TCP_BUFFER = 1024
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,7 +16,7 @@ while True:
     if not dataRCV:
         print(dataRCV.decode())
 
-    data = input(colored("Que voulez vous faire ?    "
-                 "'*' -> piocher | '+' -> Game status | '/' -> play a card", "cyan", attrs=["bold"]))
+    data = input(colored("Que voulez vous faire ? \n"
+                 "'*' -> piocher   |   '+' -> Game status   |   '/' -> play a card \n", "cyan", attrs=["bold"]))
     print(data)
     s.send(data.encode())

@@ -24,7 +24,7 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
     player.getMesgFromBoard()
 
     TCP_IP = "127.0.0.1"
-    TCP_PORT = 666 + mqType
+    TCP_PORT = 667 + mqType
     TCP_BUFFER = 20
     old_stdout = sys.stdout
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,6 +37,7 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
     def sendToClient():
         sys.stdout.seek(0)
         reponse = sys.stdout.read()
+        print(" DEBUG sending response to client : ", reponse)
         conn.send(str(reponse).encode())
 
     def restore_stdout():
@@ -66,6 +67,7 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
         if data.decode() == "*":
             print(colored("{} Pioche".format(mqType), "yellow"))
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
+            print("sending to client : ", sys.stdout)
             player.pickCard()
             player.getGameState()
             sendToClient()
@@ -146,7 +148,7 @@ def board(mq, mqType, deck_shared_memory, game_shared_memory, lock, listOfPlayer
 
 if __name__ == "__main__":
 
-    key = 666
+    key = 667
 
     lock = threading.Lock()
     mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
@@ -160,14 +162,13 @@ if __name__ == "__main__":
     mqTypeBoard = 1
     player_nb = int(input("combien de joueurs ?"))
 
-    process_pere = Process(target=board, args=(mq, mqTypeBoard, game_shared_memory, deck_shared_memory, lock, [i+2 for i in range(player_nb)]))
+    process_pere = Process(target=board, args=(
+    mq, mqTypeBoard, game_shared_memory, deck_shared_memory, lock, [i + 2 for i in range(player_nb)]))
     process_pere.start()
 
     mq.send("creation_jeu".encode(), type=1)
     print(deck_shared_memory)
     time.sleep(1)
-
-
 
     # Faire un waiting pour attendre que tous les joueurs soient connecté
 
