@@ -13,10 +13,13 @@ s.connect((TCP_IP, TCP_PORT))
 while True:
 
     dataRCV = s.recv(TCP_BUFFER)
-    if not dataRCV:
+    if dataRCV:
         print(dataRCV.decode())
 
     data = input(colored("Que voulez vous faire ?    "
-                 "'*' -> piocher | '+' -> Game status | '/' -> play a card", "cyan", attrs=["bold"]))
-    print(data)
+                         "'*' -> piocher | '+' -> Game status | '/' -> play a card", "cyan", attrs=["bold"]))
+
+    while not data:
+        data = input(colored("Saisie incorrecte, réessayer", "cyan", attrs=["bold"]))
+
     s.send(data.encode())

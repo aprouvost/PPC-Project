@@ -78,7 +78,7 @@ class Player:
 
                 if decodeValue == "game_update":
                     print(" WARING , game was updated ")
-                    self.get_Game_State()
+                    self.getGameState()
 
                 if decodeValue == "someone_won":
                     print(" WARING a player won")
@@ -115,13 +115,13 @@ class Player:
                 num_picked = int(input(" Quelle position dans la liste de cartes souhaitez vous piocher ?"))
                 while num_picked > len(self.hand):
                     num_picked = int(input(" Veuillez choisir un rang valide ! "))
-                if self.valid_card(self.hand[num_picked]):
+                if self.validCard(self.hand[num_picked]):
                     card_picked = self.hand[num_picked]
                     self.game.insert(0, card_picked)
                     print(" Carte valide et ajoutée")
-                if not self.valid_card(self.hand[num_picked]):
+                if not self.validCard(self.hand[num_picked]):
                     print(" Carte invalide. Vous avez du piocher")
-                    self.pick_card(self.deck)
+                    self.pickCard(self.deck)
 
                 played = True
 
@@ -132,7 +132,7 @@ class Player:
             print(
                 "Time's out ! Vous auriez du être plus rapide. Vous avez du piocher. Votre jeu est maintenant le "
                 "suivant : ")
-            self.pick_card(self.deck)
+            self.pickCard(self.deck)
 
         self.printHand()
         # Signal envoyé au père pour dire fini

@@ -128,6 +128,12 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
             restore_stdout()
             player.sendMessageToBoard("ended_playing")
 
+        else:
+            sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
+            print(colored("Bad command", "red", attrs=["bold"]))
+            sendToClient()
+            restore_stdout()
+
 
 # Board
 
@@ -184,7 +190,7 @@ if __name__ == "__main__":
         sendTo = 1 + process.index(p) + mqTypeBoard
         print(" CREATION MAIN ----------------------", sendTo)
         mq.send("creation_main".encode(), type=sendTo)
-
+        
     for p in process:
         p.join()
 
