@@ -100,7 +100,7 @@ class Player:
                     # print("renvoyée aux joueurs")
             else:
                 self.mq.send(value[0], type=value[1])
-                print(" Message pas pour moi, renvoyé dans la message queue. Message : ", value)
+
 
     # Function used by the player to put a card on the Game
     def playingCard(self, card):

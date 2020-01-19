@@ -15,11 +15,14 @@ import time
 import sys
 import socket
 from io import TextIOWrapper, BytesIO
+import threading
 
 
 # joueurs
 
+
 def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
+    global timeOut
     print(colored("Player Start", "red"))
     player = Player(game_shared_memory, deck_shared_memory, mq, mqType, lock)
     player.getMesgFromBoard()
@@ -41,6 +44,14 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
         print(" DEBUG sending response to client : ", reponse)
         conn.send(str(reponse).encode())
 
+    def timer():
+        print(" Gets inside the timer")
+        for i in range(10):
+            time.sleep(1)  # waits 10 seconds
+        timeOut = True
+
+
+
     def restore_stdout():
         sys.stdout.close()
         sys.stdout = old_stdout
@@ -61,10 +72,10 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
         if player.handEmpty():
             player.sendMessageToBoard("someone_won")
             print(" Un joueur a gagné ! ")
-            break
+            sys.exit()
 
         if len(game_shared_memory) == 0:
-            break
+            sys.exit()
 
         print(colored("Waiting for instruction", "green"))
         data = conn.recv(TCP_BUFFER)
@@ -93,22 +104,21 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
             print(colored("{} Joue".format(mqType), "yellow"))
             # player.sendMessageToBoard("playing")  # Il faut regarder pk le msg est recu/envoyer beaucoup trop de fois
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
+
+            global timeOut
+            timeOut = False
+
+            c = threading.Thread(target=timer)  # Appel de la fonction timer() au dessus
+            c.start()
             played = False
-            seconds = time.time()  # lance timer
-            # signal envoyé au père pour dire commence
-            actual_time = time.time()
 
             print(" Vous avez 10 secondes pour jouer. Votre jeu est le suivant : \n"
                   " Quelle position dans la liste de cartes souhaitez vous piocher ?")
             sendToClient()
-            while not played:  # timer à 10 seconds
+
+            while not played and not timeOut:  # timer à 10 seconds
 
                 with player.lock:
-
-                    actual_time = time.time()
-                    print(actual_time)
-                    # Recupère infos sur jeu
-                    # Lock sur Deck et Game
 
                     num_picked = int(conn.recv(TCP_BUFFER).decode())
                     while num_picked > len(player.hand):
@@ -124,7 +134,9 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
                         print(" Carte invalide. Vous avez du piocher")
                         player.pickCard()
                         played = True
+                c.join()
 
+            print("got out ")
             if played:
                 print(" Votre jeu est maintenant le suivant ")
 
@@ -138,6 +150,7 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
             sendToClient()
             restore_stdout()
             player.sendMessageToBoard("ended_playing")
+            #timeOut = False  # Repasse à zéro pour les prochains passages
 
         else:
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
@@ -148,7 +161,6 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
     print(' sortie ! ')
     time.sleep(3)
     sys.exit()
-
 
 
 # Board
@@ -162,9 +174,11 @@ def board(mq, mqType, deck_shared_memory, game_shared_memory, lock, listOfPlayer
 
     while True:  # fait un kill sur process si un gagne
         board.getMessageFromPlayer(listOfPlayer)
-        if board.playerLost():
+        if board.playerLost() or len(deck_shared_memory) == 0:
             board.sendMessageToPlayers("everyone_looses", listOfPlayer)
             print(" C'est terminé ! ")
+            sys.exit()
+    sys.exit()
 
 
 if __name__ == "__main__":
@@ -179,6 +193,7 @@ if __name__ == "__main__":
     game_shared_memory = Manager().list()
 
     lock = Lock()
+    global timeOut
 
     mqTypeBoard = 1
     os.system("clear")
