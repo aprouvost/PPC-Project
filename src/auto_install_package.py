@@ -18,7 +18,7 @@ def autoInstall():
         os.system("sudo apt update")
         os.system("sudo apt install -y python3-pip")
 
-    pkgs = ['termcolor', 'sysv_ipc']
+    pkgs = ['termcolor', 'sysv_ipc', 'pynput']
     for package in pkgs:
         try:
             import package

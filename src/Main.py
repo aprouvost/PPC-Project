@@ -53,7 +53,10 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
     while True:
 
         print(colored("Checking for mq", "green"))
+        sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
         player.getMesgFromBoard()
+        sendToClient()
+        restore_stdout()
 
         if player.handEmpty():
             player.sendMessageToBoard("someone_won")
@@ -79,14 +82,14 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
             sendToClient()
             restore_stdout()
 
-        if data.decode() == "+":
+        elif data.decode() == "+":
             print(colored("{} check game status".format(mqType), "yellow"))
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
             player.getGameState()
             sendToClient()
             restore_stdout()
 
-        if data.decode() == "/":
+        elif data.decode() == "/":
             print(colored("{} Joue".format(mqType), "yellow"))
             # player.sendMessageToBoard("playing")  # Il faut regarder pk le msg est recu/envoyer beaucoup trop de fois
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
@@ -138,7 +141,7 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
 
         else:
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
-            # print(colored("Bad command", "red", attrs=["bold"]))
+            print(colored("Bad command", "red", attrs=["bold"]))
             sendToClient()
             restore_stdout()
 

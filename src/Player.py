@@ -37,7 +37,7 @@ class Player:
 
     # Function which allows the player to pick a card
     def pickCard(self):
-        #with self.lock:
+        # with self.lock:
         new_card = self.deck.pop(0)
         self.hand.append(new_card)
 
@@ -76,29 +76,28 @@ class Player:
                 if decodeValue == "playing":
                     print(" WARING DECK AND GAME LOCKED someone is playing")
 
-                if decodeValue == "game_update":
+                elif decodeValue == "game_update":
                     print(" WARING , game was updated ")
-                    self.getGameState() #affiche pas au bon endroit
+                    self.getGameState()  # affiche pas au bon endroit
                     # A FAIRE : envoyer aux players un updateGame()
 
-                if decodeValue == "someone_won":
+                elif decodeValue == "someone_won":
                     print(" WARING a player won")
 
-                if decodeValue == "play_card":  # toche spéciale pour jouer
+                elif decodeValue == "play_card":  # toche spéciale pour jouer
                     with self.lock:
                         self.playingCard(self.game)
 
-                if decodeValue == "creation_main":
+                elif decodeValue == "creation_main":
                     self.creationMain()
-                if decodeValue == "everyone_looses":
+                elif decodeValue == "everyone_looses":
                     print(colored("ENDING", "red"))
                     print("You loose")
-                    os.fork()
                 else:
                     print(" WARNING : UNKNOWN VALUE RECEIVED BY PLAYER. RECEIVED :")
                     print(decodeValue)
-                    #self.mq.send(value[0], type=value[1])
-                    #print("renvoyée aux joueurs")
+                    # self.mq.send(value[0], type=value[1])
+                    # print("renvoyée aux joueurs")
             else:
                 self.mq.send(value[0], type=value[1])
                 print(" Message pas pour moi, renvoyé dans la message queue. Message : ", value)
@@ -119,7 +118,7 @@ class Player:
 
                 print(" Vous avez 10 secondes pour jouer. Votre jeu est le suivant : ")
                 self.printHand()
-                num_picked = int(input( " Quelle position dans la liste de cartes souhaitez vous piocher ?"))
+                num_picked = int(input(" Quelle position dans la liste de cartes souhaitez vous piocher ?"))
                 while num_picked > len(self.hand):
                     num_picked = int(input(" Veuillez choisir un rang valide ! "))
                 if self.validCard(self.hand[num_picked]):
