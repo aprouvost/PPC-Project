@@ -1,6 +1,10 @@
+#!/usr/bin/env python
+from auto_install_package import autoInstall
+
+autoInstall()
+
 import os
 import socket
-import threading
 import pynput
 
 from termcolor import colored
@@ -27,56 +31,33 @@ s.connect((TCP_IP, TCP_PORT))
 os.system("clear")
 
 
-def KeyBoardListener(s):
-    print("I am Strat")
-    print(s)
-    def on_press(key):
-        try:
-            s.send(str(key.char).encode())
-        except:
-            pass
-
-    def on_release(key):
-        if key == pynput.keyboard.Key.esc:
-            # Stop listener
-            return False
-
-    with pynput.keyboard.Listener(
-            on_press=on_press,
-            on_release=on_release) as listener:
-        listener.join()
+def on_press(key):
+    try:
+        s.send(str(key.char).encode())
+    except:
+        pass
 
 
-KeyListener = threading.Thread(target=KeyBoardListener, args=(s,))
-KeyListener.start()
+def on_release(key):
+    print(key)
+    if key == pynput.keyboard.Key.esc:
+        # Stop listener
+        return False
 
 
-while True:
-    # print('boucle')
+with pynput.keyboard.Listener(
+        on_press=on_press,
+        on_release=on_release) as listener:
+    while True:
 
-    # l'idee est de tout le temps regarder si on recoit quelque chose par la connexion TCP pour pouvoir l'afficher
-    # directement
-    # Si le joueur veut jouer il faut interompre cette ecoute pour le faire jouer (Sigaux ?? / Evenement ??) mais il
-    # faut bloquer le joueur s'il y en a un autre qui joue
-    #
-    # print(colored(listener.is_alive(), "yellow"))
-    # if not listener.is_alive():
-    #     listener.join()
 
-    print("waiting TCP")
-    dataRCV = s.recv(TCP_BUFFER)
-    if not dataRCV:
-        break
-    else:
-        os.system("clear")
-        print(dataRCV.decode())
-        print(colored("Que voulez vous faire ?    "
-                      "'*' -> piocher | '+' -> Game status | '/' -> play a card", "cyan", attrs=["bold"]))
+        dataRCV = s.recv(TCP_BUFFER)
+        if not dataRCV:
+            break
+        else:
+            os.system("clear")
+            print(dataRCV.decode())
+            print(colored("Que voulez vous faire ?    "
+                          "'*' -> piocher | '+' -> Game status | '/' -> play a card", "cyan", attrs=["bold"]))
 
-    # data = input(colored("Que voulez vous faire ?    "
-    #                      "'*' -> piocher | '+' -> Game status | '/' -> play a card", "cyan", attrs=["bold"]))
-    #
-    # while not data:
-    #     data = input(colored("Saisie incorrecte, réessayer", "cyan", attrs=["bold"]))
-    #
-    # s.send(data.encode())
+    listener.join()

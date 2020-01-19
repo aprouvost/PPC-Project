@@ -8,21 +8,22 @@ autoInstall()
 from termcolor import colored
 from board import Board
 from Player import Player
-import threading
+from io import TextIOWrapper, BytesIO
 from multiprocessing import Process, Manager, Lock
+
 import sysv_ipc
 import time
 import sys
 import socket
-from io import TextIOWrapper, BytesIO
 import threading
 
+
+global timeOut
 
 # joueurs
 
 
 def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
-    global timeOut
     print(colored("Player Start", "red"))
     player = Player(game_shared_memory, deck_shared_memory, mq, mqType, lock)
     player.getMesgFromBoard()
@@ -38,6 +39,7 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
     conn, addr = s.accept()
     print(colored("Connection address: {}".format(addr), "green"))
 
+
     def sendToClient():
         sys.stdout.seek(0)
         reponse = sys.stdout.read()
@@ -46,9 +48,8 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
 
     def timer():
         print(" Gets inside the timer")
-        for i in range(10):
-            time.sleep(1)  # waits 10 seconds
-        timeOut = True
+        time.sleep(10)
+        sys.exit(0)
 
 
 
@@ -72,13 +73,15 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
         if player.handEmpty():
             player.sendMessageToBoard("someone_won")
             print(" Un joueur a gagné ! ")
-            sys.exit()
+            sys.exit(0)
 
         if len(game_shared_memory) == 0:
-            sys.exit()
+            sys.exit(0)
 
         print(colored("Waiting for instruction", "green"))
+
         data = conn.recv(TCP_BUFFER)
+
         print(colored(data, "yellow"))
 
         if not data:
@@ -105,7 +108,6 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
             # player.sendMessageToBoard("playing")  # Il faut regarder pk le msg est recu/envoyer beaucoup trop de fois
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
 
-            global timeOut
             timeOut = False
 
             c = threading.Thread(target=timer)  # Appel de la fonction timer() au dessus
@@ -116,25 +118,32 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
                   " Quelle position dans la liste de cartes souhaitez vous piocher ?")
             sendToClient()
 
-            while not played and not timeOut:  # timer à 10 seconds
+            # s.setblocking(0)
+            while not played:  # timer à 10 seconds
+                print("boucle")
 
                 with player.lock:
 
-                    num_picked = int(conn.recv(TCP_BUFFER).decode())
-                    while num_picked > len(player.hand):
-                        print("Saisie incorecte")
+                    try:
                         num_picked = int(conn.recv(TCP_BUFFER).decode())
-                    if player.validCard(player.hand[num_picked]):
-                        card_picked = player.hand[num_picked]
-                        player.game.insert(0, card_picked)
-                        player.hand.remove(card_picked)
-                        print(" Carte valide et ajoutée")
-                        played = True
-                    else:
-                        print(" Carte invalide. Vous avez du piocher")
-                        player.pickCard()
-                        played = True
-                c.join()
+
+                        if player.validCard(player.hand[num_picked]) and c.is_alive():
+                            card_picked = player.hand[num_picked]
+                            player.game.insert(0, card_picked)
+                            player.hand.remove(card_picked)
+                            print(" Carte valide et ajoutée")
+                            played = True
+                        elif not player.validCard(player.hand[num_picked]) and c.is_alive():
+                            print(" Carte invalide. Vous avez du piocher")
+                            player.pickCard()
+                            played = True
+                        else:
+                            break
+                    except:
+                        print("Saisie incorecte")
+                sendToClient()
+
+
 
             print("got out ")
             if played:

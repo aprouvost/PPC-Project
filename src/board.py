@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-import os
+
 import random
 from Carte import Carte
-from orca.braille import clear
 from termcolor import colored
 
 
@@ -46,7 +45,6 @@ class Board:
         return sig.split(":")[1] == "empty hand"
 
     def getGameSettings(self):
-        os.system(clear)
         with self.lock:
             print("Game state : the deck has ", len(self.deck), "cards")
 
