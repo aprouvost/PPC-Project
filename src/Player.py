@@ -125,11 +125,7 @@ class Player:
                     print(" Carte valide et ajoutée")
                 if not self.validCard(self.hand[num_picked]):
                     print(" Carte invalide. Vous avez du piocher")
-<<<<<<< HEAD
-                    self.pickCard(self.deck)
-=======
                     self.pickCard()
->>>>>>> 4216c17fbc39c486e47c0adcb5b6144d47f98610
 
                 played = True
 
@@ -140,11 +136,7 @@ class Player:
             print(
                 "Time's out ! Vous auriez du être plus rapide. Vous avez du piocher. Votre jeu est maintenant le "
                 "suivant : ")
-<<<<<<< HEAD
-            self.pickCard(self.deck)
-=======
             self.pickCard()
->>>>>>> 4216c17fbc39c486e47c0adcb5b6144d47f98610
 
         self.printHand()
         # Signal envoyé au père pour dire fini
