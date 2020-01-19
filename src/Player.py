@@ -37,7 +37,7 @@ class Player:
 
     # Function which allows the player to pick a card
     def pickCard(self):
-        # with self.lock:
+        #with self.lock:
         new_card = self.deck.pop(0)
         self.hand.append(new_card)
 
@@ -78,7 +78,8 @@ class Player:
 
                 if decodeValue == "game_update":
                     print(" WARING , game was updated ")
-                    self.getGameState()
+                    self.getGameState() #affiche pas au bon endroit
+                    # A FAIRE : envoyer aux players un updateGame()
 
                 if decodeValue == "someone_won":
                     print(" WARING a player won")
@@ -96,6 +97,8 @@ class Player:
                 else:
                     print(" WARNING : UNKNOWN VALUE RECEIVED BY PLAYER. RECEIVED :")
                     print(decodeValue)
+                    #self.mq.send(value[0], type=value[1])
+                    #print("renvoyée aux joueurs")
             else:
                 self.mq.send(value[0], type=value[1])
                 print(" Message pas pour moi, renvoyé dans la message queue. Message : ", value)
@@ -116,7 +119,7 @@ class Player:
 
                 print(" Vous avez 10 secondes pour jouer. Votre jeu est le suivant : ")
                 self.printHand()
-                num_picked = int(input(" Quelle position dans la liste de cartes souhaitez vous piocher ?"))
+                num_picked = int(input( " Quelle position dans la liste de cartes souhaitez vous piocher ?"))
                 while num_picked > len(self.hand):
                     num_picked = int(input(" Veuillez choisir un rang valide ! "))
                 if self.validCard(self.hand[num_picked]):

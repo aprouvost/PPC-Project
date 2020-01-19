@@ -1,5 +1,15 @@
+import os
 import socket
+
+from orca.braille import clear
 from termcolor import colored
+
+os.system("clear")
+print("-------------------------------------------------------------------------------- \n BIENVENUE ! \n \n VOICI "
+      "LES REGLES : Tu peux poser le même numero que celui en jeu, ou bien la même couleur de celui-ci si la valeur "
+      "de la carte est de plus ou moins 1 que celle en jeu ! Pense bien avant de jouer, si tu te trompes tu devras "
+      "piocher ... \n Mais fais attention, si la pioche est vide tout le monde a perdu ! \n \n "
+      "BON COURAGE !  \n \n")
 
 nbPlayer = int(input("Quel est votre numero de Player ?"))
 
@@ -23,3 +33,4 @@ while True:
         data = input(colored("Saisie incorrecte, réessayer", "cyan", attrs=["bold"]))
 
     s.send(data.encode())
+    os.system("clear")

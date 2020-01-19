@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 
 from auto_install_package import autoInstall
 
@@ -56,6 +57,11 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
 
         if player.handEmpty():
             player.sendMessageToBoard("someone_won")
+            print(" Un joueur a gagné ! ")
+            break
+
+        if len(game_shared_memory) == 0:
+            break
 
         print(colored("Waiting for instruction", "green"))
         data = conn.recv(TCP_BUFFER)
@@ -132,9 +138,14 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
 
         else:
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
-            print(colored("Bad command", "red", attrs=["bold"]))
+            # print(colored("Bad command", "red", attrs=["bold"]))
             sendToClient()
             restore_stdout()
+
+    print(' sortie ! ')
+    time.sleep(3)
+    sys.exit()
+
 
 
 # Board
@@ -150,6 +161,7 @@ def board(mq, mqType, deck_shared_memory, game_shared_memory, lock, listOfPlayer
         board.getMessageFromPlayer(listOfPlayer)
         if board.playerLost():
             board.sendMessageToPlayers("everyone_looses", listOfPlayer)
+            print(" C'est terminé ! ")
 
 
 if __name__ == "__main__":
@@ -166,16 +178,17 @@ if __name__ == "__main__":
     lock = Lock()
 
     mqTypeBoard = 1
+    os.system("clear")
     player_nb = int(input("combien de joueurs ?"))
 
     process_pere = Process(target=board, args=(
-    mq, mqTypeBoard, game_shared_memory, deck_shared_memory, lock, [i + 2 for i in range(player_nb)]))
+        mq, mqTypeBoard, game_shared_memory, deck_shared_memory, lock, [i + 2 for i in range(player_nb)]))
     process_pere.start()
 
+    print("envoi de la demande de creation de deck")
     mq.send("creation_jeu".encode(), type=1)
-    print(deck_shared_memory)
     time.sleep(1)
-
+    print("SHARED MEMORY: ", deck_shared_memory)
     # Faire un waiting pour attendre que tous les joueurs soient connecté
 
     print(" CREATION PROCESS ----------------------")
@@ -191,7 +204,7 @@ if __name__ == "__main__":
         sendTo = 1 + process.index(p) + mqTypeBoard
         print(" CREATION MAIN ----------------------", sendTo)
         mq.send("creation_main".encode(), type=sendTo)
-        
+
     for p in process:
         p.join()
 
