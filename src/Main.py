@@ -90,42 +90,34 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
 
         data = conn.recv(TCP_BUFFER)
 
-        print(colored(data, "yellow"))
-
         if not data:
             break
 
         if data.decode() == "*":
-            print(colored("{} Pioche".format(mqType), "yellow"))
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
-            print("sending to client : ", sys.stdout)
             player.pickCard()
             player.getGameState()
             sendToClient()
             restore_stdout()
 
         elif data.decode() == "+":
-            print(colored("{} check game status".format(mqType), "yellow"))
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
             player.getGameState()
             sendToClient()
             restore_stdout()
 
         elif data.decode() == "/":
-            print(colored("{} Joue".format(mqType), "yellow"))
-            # player.sendMessageToBoard("playing")  # Il faut regarder pk le msg est recu/envoyer beaucoup trop de fois
-            sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
 
+            sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
             c = threading.Thread(target=timer)  # Appel de la fonction timer() au dessus
             c.start()
             played = False
 
             print(" Vous avez 10 secondes pour jouer. \n")
             player.getGameState()
-            print(" \n Quelle position dans la liste de cartes souhaitez vous piocher ?")
+            print(" \n Quelle position dans la liste de cartes souhaitez vous piocher ? ( Commencer à zéro )")
             sendToClient()
 
-            # s.setblocking(0) #Evite que la connexion bloque
             while not played:  # timer à 10 seconds
 
                 with player.lock:
@@ -154,7 +146,6 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
                             break
                 sendToClient()
 
-
             if played:
                 player.getGameState()
 
@@ -173,7 +164,6 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
             print(colored("Bad command", "red", attrs=["bold"]))
             sendToClient()
             restore_stdout()
-
 
 
 # Board
@@ -214,10 +204,9 @@ if __name__ == "__main__":
         mq, mqTypeBoard, game_shared_memory, deck_shared_memory, lock, [i + 2 for i in range(player_nb)]))
     process_pere.start()
 
-    print("envoi de la demande de creation de deck")
     mq.send("creation_jeu".encode(), type=1)
     time.sleep(1)
-    print("SHARED MEMORY: ", deck_shared_memory)
+    print("SHARED MEMORY: ---------------------- \nCreated")
     # Faire un waiting pour attendre que tous les joueurs soient connecté
 
     print(" CREATION PROCESS ----------------------")

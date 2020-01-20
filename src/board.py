@@ -23,7 +23,7 @@ class Board:
                     card = Carte(types, color)
                     with self.lock:
                         self.deck.append(card)
-        print(colored(self.deck, "cyan"))
+        print(colored("Access to deck allowed", "cyan"))
 
     def handling_signal(self):  # si touche de gauche: joueur 1, si touche de droite: joueur 2.
         # Envoi du messa au joueur concerné,
