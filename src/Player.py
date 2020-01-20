@@ -54,7 +54,7 @@ class Player:
     def creationMain(self):
         for i in range(5):
             self.pickCard()
-        print(colored(self.hand, "blue"))
+        # print(colored(self.hand, "blue"))
 
     def sendMessageToBoard(self, msg):
         self.mq.send(msg.encode(), type=self.mqTypeBoard)

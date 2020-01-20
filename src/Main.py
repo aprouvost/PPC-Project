@@ -72,7 +72,7 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
 
     while True:
 
-        print(colored("Checking for mq", "green"))
+        print(colored("{} Checking for mq".format(mqType), "green"))
         sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
         player.getMesgFromBoard()
         sendToClient()
@@ -86,7 +86,7 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
         if len(game_shared_memory) == 0:
             sortie()
 
-        print(colored("Waiting for instruction", "green"))
+        print(colored("{} Waiting for instruction".format(mqType), "green"))
 
         data = conn.recv(TCP_BUFFER)
 
@@ -94,6 +94,7 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
             break
 
         if data.decode() == "*":
+            print(colored("{} Pick a card".format(mqType), "yellow"))
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
             player.pickCard()
             player.getGameState()
@@ -101,13 +102,14 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
             restore_stdout()
 
         elif data.decode() == "+":
+            print(colored("{} Check game status".format(mqType), "yellow"))
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
             player.getGameState()
             sendToClient()
             restore_stdout()
 
         elif data.decode() == "/":
-
+            print(colored("{} Play".format(mqType), "yellow"))
             sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
             c = threading.Thread(target=timer)  # Appel de la fonction timer() au dessus
             c.start()
