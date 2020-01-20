@@ -37,6 +37,18 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
     conn, addr = s.accept()
     print(colored("Connection address: {}".format(addr), "green"))
 
+    def sortie():
+        sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
+        print("Appuyer sur une touche pour sortir")
+        sendToClient()
+        restore_stdout()
+        data = conn.recv(TCP_BUFFER).decode()
+        if data:
+            pass
+        print(mqType, ' sortie ! ')
+        time.sleep(1)
+        conn.close()
+        sys.exit(0)
 
     def sendToClient():
         sys.stdout.seek(0)
@@ -69,10 +81,10 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
         if player.handEmpty():
             player.sendMessageToBoard("someone_won")
             print(" Un joueur a gagné ! ")
-            sys.exit(0)
+            sortie()
 
         if len(game_shared_memory) == 0:
-            sys.exit(0)
+            sortie()
 
         print(colored("Waiting for instruction", "green"))
 
@@ -162,16 +174,6 @@ def joueur(mq, mqType, game_shared_memory, deck_shared_memory, lock):
             sendToClient()
             restore_stdout()
 
-    sys.stdout = TextIOWrapper(BytesIO(), sys.stdout.encoding)
-    print("Appuyer sur une touche pour sortir")
-    sendToClient()
-    restore_stdout()
-    data = conn.recv(TCP_BUFFER).decode()
-    if data:
-        pass
-    print(mqType, ' sortie ! ')
-    time.sleep(3)
-    sys.exit(0)
 
 
 # Board

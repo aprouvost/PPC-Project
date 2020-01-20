@@ -78,7 +78,7 @@ class Player:
 
                 elif decodeValue == "game_update":
                     print(" WARING , game was updated ")
-                    self.getGameState()  # affiche pas au bon endroit
+                    self.getGameState()
                     # A FAIRE : envoyer aux players un updateGame()
 
                 elif decodeValue == "someone_won":
