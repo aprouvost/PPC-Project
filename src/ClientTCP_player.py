@@ -21,7 +21,7 @@ print("-------------------------------------------------------------------------
 
 nbPlayer = int(input("Quel est votre numero de Player ?"))
 
-TCP_IP = "127.0.0.1"
+TCP_IP = "192.168.43.100"
 TCP_PORT = 667 + nbPlayer
 TCP_BUFFER = 1024
 
